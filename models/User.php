@@ -25,7 +25,7 @@ class User extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%user}}';
     }
@@ -33,7 +33,7 @@ class User extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['username', 'created_at', 'updated_at'], 'required'],
@@ -57,7 +57,7 @@ class User extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => Yii::t('app', 'ID'),
@@ -69,7 +69,7 @@ class User extends ActiveRecord
     /**
      * @return array
      */
-    public static function getStatusTexts()
+    public static function getStatusTexts(): array
     {
         return [
             self::STATUS_ACTIVE => Yii::t('app', 'Active'),

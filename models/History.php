@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\enum\EventTypeEnum;
 use app\models\traits\ObjectNameTrait;
 use Yii;
 use yii\db\ActiveQuery;
@@ -19,12 +20,9 @@ use yii\db\ActiveRecord;
  * @property string $message
  * @property string $detail
  * @property integer $user_id
- *
  * @property string $eventText
- *
  * @property Customer $customer
  * @property User $user
- *
  * @property Task $task
  * @property Sms $sms
  * @property Call $call
@@ -33,26 +31,10 @@ class History extends ActiveRecord
 {
     use ObjectNameTrait;
 
-    const EVENT_CREATED_TASK = 'created_task';
-    const EVENT_UPDATED_TASK = 'updated_task';
-    const EVENT_COMPLETED_TASK = 'completed_task';
-
-    const EVENT_INCOMING_SMS = 'incoming_sms';
-    const EVENT_OUTGOING_SMS = 'outgoing_sms';
-
-    const EVENT_INCOMING_CALL = 'incoming_call';
-    const EVENT_OUTGOING_CALL = 'outgoing_call';
-
-    const EVENT_INCOMING_FAX = 'incoming_fax';
-    const EVENT_OUTGOING_FAX = 'outgoing_fax';
-
-    const EVENT_CUSTOMER_CHANGE_TYPE = 'customer_change_type';
-    const EVENT_CUSTOMER_CHANGE_QUALITY = 'customer_change_quality';
-
     /**
      * @inheritdoc
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%history}}';
     }
@@ -60,7 +42,7 @@ class History extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['ins_ts'], 'safe'],
@@ -76,7 +58,7 @@ class History extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => Yii::t('app', 'ID'),
@@ -94,7 +76,7 @@ class History extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getCustomer()
+    public function getCustomer(): ActiveQuery
     {
         return $this->hasOne(Customer::class, ['id' => 'customer_id']);
     }
@@ -102,90 +84,51 @@ class History extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getUser()
+    public function getUser(): ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
     /**
-     * @return array
+     * Get event text
+     *
+     * @return string
      */
-    public static function getEventTexts()
+    public function getEventText(): string
     {
-        return [
-            self::EVENT_CREATED_TASK => Yii::t('app', 'Task created'),
-            self::EVENT_UPDATED_TASK => Yii::t('app', 'Task updated'),
-            self::EVENT_COMPLETED_TASK => Yii::t('app', 'Task completed'),
-
-            self::EVENT_INCOMING_SMS => Yii::t('app', 'Incoming message'),
-            self::EVENT_OUTGOING_SMS => Yii::t('app', 'Outgoing message'),
-
-            self::EVENT_CUSTOMER_CHANGE_TYPE => Yii::t('app', 'Type changed'),
-            self::EVENT_CUSTOMER_CHANGE_QUALITY => Yii::t('app', 'Property changed'),
-
-            self::EVENT_OUTGOING_CALL => Yii::t('app', 'Outgoing call'),
-            self::EVENT_INCOMING_CALL => Yii::t('app', 'Incoming call'),
-
-            self::EVENT_INCOMING_FAX => Yii::t('app', 'Incoming fax'),
-            self::EVENT_OUTGOING_FAX => Yii::t('app', 'Outgoing fax'),
-        ];
+        return EventTypeEnum::getEventTextByEvent($this->event);
     }
-
-    /**
-     * @param $event
-     * @return mixed
-     */
-    public static function getEventTextByEvent($event)
-    {
-        return static::getEventTexts()[$event] ?? $event;
-    }
-
-    /**
-     * @return mixed|string
-     */
-    public function getEventText()
-    {
-        return static::getEventTextByEvent($this->event);
-    }
-
 
     /**
      * @param $attribute
-     * @return null
+     * @return mixed
      */
     public function getDetailChangedAttribute($attribute)
     {
         $detail = json_decode($this->detail);
-        return isset($detail->changedAttributes->{$attribute}) ? $detail->changedAttributes->{$attribute} : null;
+
+        return $detail->changedAttributes->{$attribute} ?? null;
     }
 
     /**
      * @param $attribute
-     * @return null
+     * @return mixed
      */
     public function getDetailOldValue($attribute)
     {
         $detail = $this->getDetailChangedAttribute($attribute);
-        return isset($detail->old) ? $detail->old : null;
+
+        return $detail->old ?? null;
     }
 
     /**
      * @param $attribute
-     * @return null
+     * @return mixed
      */
     public function getDetailNewValue($attribute)
     {
         $detail = $this->getDetailChangedAttribute($attribute);
-        return isset($detail->new) ? $detail->new : null;
-    }
 
-    /**
-     * @param $attribute
-     * @return null
-     */
-    public function getDetailData($attribute)
-    {
-        $detail = json_decode($this->detail);
-        return isset($detail->data->{$attribute}) ? $detail->data->{$attribute} : null;
+        return $detail->new ?? null;
     }
 }

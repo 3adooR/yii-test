@@ -7,15 +7,13 @@ use Yii;
 
 class Export extends ExportMenu
 {
-    public $exportType = self::FORMAT_CSV;
-
     public function init()
     {
         if (empty($this->options['id'])) {
             $this->options['id'] = $this->getId();
         }
         if (empty($this->exportRequestParam)) {
-            $this->exportRequestParam = 'exportFull_' . $this->options['id'];
+            $this->exportRequestParam = 'exportFull_'.$this->options['id'];
         }
 
         $_POST[Yii::$app->request->methodParam] = 'POST';
