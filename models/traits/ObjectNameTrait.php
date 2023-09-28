@@ -8,6 +8,8 @@ use app\models\Fax;
 use app\models\Sms;
 use app\models\Task;
 use app\models\User;
+use yii\db\ActiveQuery;
+use yii\db\ActiveQueryInterface;
 
 trait ObjectNameTrait
 {
@@ -23,7 +25,7 @@ trait ObjectNameTrait
     /**
      * @param $name
      * @param bool $throwException
-     * @return mixed
+     * @return ActiveQuery|ActiveQueryInterface|null
      */
     public function getRelation($name, $throwException = true)
     {
@@ -54,13 +56,14 @@ trait ObjectNameTrait
      * @param $relation
      * @return string|null
      */
-    public static function getClassNameByRelation($relation)
+    public static function getClassNameByRelation($relation): ?string
     {
         foreach (self::$classes as $class) {
             if (self::getObjectByTableClassName($class) == $relation) {
                 return $class;
             }
         }
+
         return null;
     }
 }

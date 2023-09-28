@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\enum\CallDirectionEnum;
+use app\enum\CallStatusEnum;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -33,18 +35,12 @@ use yii\db\ActiveRecord;
  */
 class Call extends ActiveRecord
 {
-    const STATUS_NO_ANSWERED = 0;
-    const STATUS_ANSWERED = 1;
-
-    const DIRECTION_INCOMING = 0;
-    const DIRECTION_OUTGOING = 1;
-
     public $duration = 720;
 
     /**
      * @inheritdoc
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%call}}';
     }
@@ -52,7 +48,7 @@ class Call extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['ins_ts'], 'safe'],
@@ -67,7 +63,7 @@ class Call extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => Yii::t('app', 'ID'),
@@ -88,7 +84,7 @@ class Call extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getCustomer()
+    public function getCustomer(): ActiveQuery
     {
         return $this->hasOne(Customer::class, ['id' => 'customer_id']);
     }
@@ -96,7 +92,7 @@ class Call extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getUser()
+    public function getUser(): ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
@@ -104,9 +100,9 @@ class Call extends ActiveRecord
     /**
      * @return string
      */
-    public function getClient_phone()
+    public function getClient_phone(): string
     {
-        return $this->direction == self::DIRECTION_INCOMING ? $this->phone_from : $this->phone_to;
+        return $this->direction == CallDirectionEnum::DIRECTION_INCOMING ? $this->phone_from : $this->phone_to;
     }
 
     /**
@@ -115,15 +111,15 @@ class Call extends ActiveRecord
     public function getTotalStatusText()
     {
         if (
-            $this->status == self::STATUS_NO_ANSWERED
-            && $this->direction == self::DIRECTION_INCOMING
+            $this->status == CallStatusEnum::STATUS_NO_ANSWERED
+            && $this->direction == CallDirectionEnum::DIRECTION_INCOMING
         ) {
             return Yii::t('app', 'Missed Call');
         }
 
         if (
-            $this->status == self::STATUS_NO_ANSWERED
-            && $this->direction == self::DIRECTION_OUTGOING
+            $this->status == CallStatusEnum::STATUS_NO_ANSWERED
+            && $this->direction == CallDirectionEnum::DIRECTION_OUTGOING
         ) {
             return Yii::t('app', 'Client No Answer');
         }
@@ -131,7 +127,7 @@ class Call extends ActiveRecord
         $msg = $this->getFullDirectionText();
 
         if ($this->duration) {
-            $msg .= ' (' . $this->getDurationText() . ')';
+            $msg .= ' ('.$this->getDurationText().')';
         }
 
         return $msg;
@@ -141,23 +137,24 @@ class Call extends ActiveRecord
      * @param bool $hasComment
      * @return string
      */
-    public function getTotalDisposition($hasComment = true)
+    public function getTotalDisposition($hasComment = true): string
     {
         $t = [];
         if ($hasComment && $this->comment) {
             $t[] = $this->comment;
         }
+
         return implode(': ', $t);
     }
 
     /**
      * @return array
      */
-    public static function getFullDirectionTexts()
+    public static function getFullDirectionTexts(): array
     {
         return [
-            self::DIRECTION_INCOMING => Yii::t('app', 'Incoming Call'),
-            self::DIRECTION_OUTGOING => Yii::t('app', 'Outgoing Call'),
+            CallDirectionEnum::DIRECTION_INCOMING => Yii::t('app', 'Incoming Call'),
+            CallDirectionEnum::DIRECTION_OUTGOING => Yii::t('app', 'Outgoing Call'),
         ];
     }
 
@@ -172,11 +169,12 @@ class Call extends ActiveRecord
     /**
      * @return string
      */
-    public function getDurationText()
+    public function getDurationText(): string
     {
         if (!is_null($this->duration)) {
             return $this->duration >= 3600 ? gmdate("H:i:s", $this->duration) : gmdate("i:s", $this->duration);
         }
+
         return '00:00';
     }
 }

@@ -1,7 +1,8 @@
 <?php
 
-$params = require __DIR__ . '/params.php';
-$db = require __DIR__ . '/db.php';
+$params = require __DIR__.'/params.php';
+$db = require __DIR__.'/db.php';
+$exportConfig = require __DIR__.'/export.php';
 
 $config = [
     'id' => 'basic',
@@ -9,7 +10,7 @@ $config = [
     'bootstrap' => ['log'],
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
-        '@npm'   => '@vendor/npm-asset',
+        '@npm' => '@vendor/npm-asset',
     ],
     'name' => 'Americor Test',
     'components' => [
@@ -58,7 +59,7 @@ $config = [
             'class' => '\kartik\grid\Module'
         ]
     ],
-    'params' => $params,
+    'params' => array_merge($params, $exportConfig),
 ];
 
 if (YII_ENV_DEV) {
